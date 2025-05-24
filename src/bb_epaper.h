@@ -103,6 +103,7 @@ typedef struct epd_panel {
     const uint8_t *pColorLookup; // color translation table
 } EPD_PANEL;
 
+#if 0
 // Display types
 enum {
     EP_PANEL_UNDEFINED=0,
@@ -145,8 +146,94 @@ enum {
     EP81_SPECTRA_1024x576, // Spectra 8.1" 1024x576 6-colors
     EP_PANEL_COUNT
 };
+#else
+// Display types
+#define EP_PANEL_UNDEFINED 0
+#define EP42_400x300       1  // WFT0420CZ15
+#define EP42B_400x300      2  // DEPG0420BN / GDEY042T81
+#define EP213_122x250      3  // waveshare
+#define EP213B_122x250     4  // GDEY0213B74 (Inky phat 2.13" B/W newer version)
+#define EP293_128x296      5
+#define EP294_128x296      6  // Waveshare newer 2.9" 1-bit 128x296
+#define EP295_128x296      7  // harvested from Solum 2.9" BW ESLs
+#define EP266_152x296      8  // GDEY0266T90
+#define EP102_80x128       9  // GDEW0102T4
+#define EP27B_176x264      10 // GDEY027T91
+#define EP29R_128x296      11
+#define EP122_192x176      12 // GDEM0122T61
+#define EP154R_152x152     13
+#define EP42R_400x300      14
+#define EP42R2_400x300     15 // GDEQ042Z21
+#define EP37_240x416       16 // GDEY037T03
+#define EP213_104x212      17 // InkyPHAT 2.13 black and white
+#define EP75_800x480       18 // GDEY075T7
+#define EP29_128x296       19 // Pimoroni Badger2040
+#define EP213R_122x250     20 // Inky phat 2.13 B/W/R
+#define EP154_200x200      21 // waveshare
+#define EP154B_200x200     22 // DEPG01540BN
+#define EP266YR_184x360    23 // GDEY0266F51
+#define EP29YR_128x296     24 // GDEY029F51
+#define EP29YR_168x384     25 // GDEY029F51H
+#define EP583_648x480      26 // DEPG0583BN
+#define EP296_128x296      27 // Waveshare 2.9" 128x296 B/W V2
+#define EP26R_152x296      28 // Solum 2.6" B/W/R harvested panel
+#define EP73_800x480       29 // GEDY073D46 (slower, EOL 7-color)
+#define EP73_SPECTRA_800x480  30 // Spectra 6 7-color 800x480
+#define EP74R_640x384      31
+#define EP583R_600x448     32 // 4-bits per pixel needs different support
+#define EP75R_800x480      33 // Waveshare 800x480 3-color
+#define EP426_480x800      34 // Waveshare 4.26" B/W 480x800
+#define EP29R2_128x296     35 // Adafruit 2.9" 128x296 Tricolor FeatherWing
+#define EP41_640x400       36 // EInk ED040TC1 SPI UC81xx
+#define EP81_SPECTRA_1024x576 37 // Spectra 8.1" 1024x576 6-colors
+#define EP_PANEL_COUNT     38
+
+#ifdef DEFINE_BB_TYPE_STRINGS
+const char *gBB_TypeStrings[] = {
+   "EP42_400x300",
+   "EP42B_400x300",
+   "EP213_122x250",
+   "EP213B_122x250",
+   "EP293_128x296",
+   "EP294_128x296",
+   "EP295_128x296",
+   "EP266_152x296",
+   "EP102_80x128",
+   "EP27B_176x264",
+   "EP29R_128x296",
+   "EP122_192x176",
+   "EP154R_152x152",
+   "EP42R_400x300",
+   "EP42R2_400x300",
+   "EP37_240x416",
+   "EP213_104x212",
+   "EP75_800x480",
+   "EP29_128x296",
+   "EP213R_122x250",
+   "EP154_200x200",
+   "EP154B_200x200",
+   "EP266YR_184x360",
+   "EP29YR_128x296",
+   "EP29YR_168x384",
+   "EP583_648x480",
+   "EP296_128x296",
+   "EP26R_152x296",
+   "EP73_800x480",
+   "EP73_SPECTRA_800x480",
+   "EP74R_640x384",
+   "EP583R_600x448",
+   "EP75R_800x480",
+   "EP426_480x800",
+   "EP29R2_128x296",
+   "EP41_640x400",
+   "EP81_SPECTRA_1024x576",
+   NULL     // end of table
+};
+#endif
+#endif
+
 #ifdef FUTURE
-    EPD42_4GRAY_400x300, // WFT0420CZ15
+    EPD42_4GRAY_400x300 // WFT0420CZ15
   EPD42Y_400x300, // DEPG0420YN
   EPD29_128x296,
   EPD29B_128x296,
