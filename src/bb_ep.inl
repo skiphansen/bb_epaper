@@ -287,6 +287,31 @@ const uint8_t epd29r_init_sequence_full[] PROGMEM = {
     0x00
 };
 
+const uint8_t chroma29_cc1310_init_sequence_full[] PROGMEM = {
+   0x01, 0x12, // soft reset
+   BUSY_WAIT,
+   0x02, 0x74, 0x54, // set analog block control
+   0x02, 0x7e, 0x3b, // set digital block control
+   0x03, 0x2b, 0x04, 0x63, // ACVCOM
+   0x05, 0x0c, 0x8f, 0x8f, 0x8c, 0x3f, // Softstart
+   0x04, 0x01, 0x27, 0x01, 0x00, // output control
+   0x02, 0x11, 0x03, // data entry mode
+   0x03, 0x44, 0x00, 0x0f, // RAM X start/end
+   0x05, 0x45, 0x00, 0x00, 0x27, 0x01, // RAM Y start/end
+   0x02, 0x3c, 0x01, // border (0=bk,1=wh,2=red)
+   0x02, 0x18, 0x80, // temp sensor = internal
+   0x02, 0x21, 0x00, // display update ctrl 1
+#if 0
+   0x02, 0x22, 0xb1, // display update ctrl 2
+   0x01, 0x20, // master activation
+   BUSY_WAIT,
+#endif
+   0x02, 0x4e, 0x00, // RAM X counter
+   0x03, 0x4f, 0x27, 0x01, // RAM Y counter
+
+   0x00
+};
+
 const uint8_t epd26r_init_sequence_full[] PROGMEM = {
     0x01, 0x12, // soft reset
     BUSY_WAIT,
@@ -1609,6 +1634,9 @@ const EPD_PANEL panelDefs[] PROGMEM = {
 #ifdef EP81_SPECTRA_1024x576
     {1024, 576, 0, epd81c_init_full, NULL, NULL, BBEP_SPLIT_BUFFER | BBEP_7COLOR, BBEP_CHIP_UC81xx, u8Colors_spectra}, // 8.1" 1024x576 dual cable Spectra 6 EP81_SPECTRA_1024x576
 #endif
+#ifdef EP_CHROMA29_CC1310
+    {128, 296, 1, chroma29_cc1310_init_sequence_full, NULL, NULL, BBEP_3COLOR, BBEP_CHIP_SSD16xx, u8Colors_3clr}, // 
+#endif
 };
 //
 // Set the e-paper panel type
@@ -2032,9 +2060,11 @@ int bbepRefresh(BBEPDISP *pBBEP, int iMode)
         }
     } else {
         const uint8_t u8CMD[4] = {0xf7, 0xc7, 0xff, 0xc0}; // normal, fast, partial, partial2
+#if 0
         if (pBBEP->iFlags & BBEP_3COLOR) {
             iMode = REFRESH_FAST;
         } // 3-color = 0xc7
+#endif
         if (iMode == REFRESH_PARTIAL && pBBEP->iFlags & BBEP_PARTIAL2) {
             iMode = REFRESH_PARTIAL2; // special case for custom LUT
         }

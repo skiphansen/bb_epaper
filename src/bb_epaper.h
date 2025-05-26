@@ -186,7 +186,8 @@ enum {
 #define EP29R2_128x296     35 // Adafruit 2.9" 128x296 Tricolor FeatherWing
 #define EP41_640x400       36 // EInk ED040TC1 SPI UC81xx
 #define EP81_SPECTRA_1024x576 37 // Spectra 8.1" 1024x576 6-colors
-#define EP_PANEL_COUNT     38
+#define EP_CHROMA29_CC1310 38 // Spectra 8.1" 1024x576 6-colors
+#define EP_PANEL_COUNT     39
 
 #ifdef DEFINE_BB_TYPE_STRINGS
 const char *gBB_TypeStrings[] = {
@@ -227,6 +228,7 @@ const char *gBB_TypeStrings[] = {
    "EP29R2_128x296",
    "EP41_640x400",
    "EP81_SPECTRA_1024x576",
+   "EP_CHROMA29_CC1310",
    NULL     // end of table
 };
 #endif
