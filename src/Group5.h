@@ -7,6 +7,7 @@
 #ifdef __AVR__
 #include <avr/pgmspace.h>
 #endif
+int __builtin_clz(unsigned int x);
 //
 // Group5 1-bit image compression library
 // Written by Larry Bank

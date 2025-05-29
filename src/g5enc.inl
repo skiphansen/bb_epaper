@@ -14,6 +14,22 @@
 // ./APL.txt.
 #include "Group5.h"
 
+#if defined(DeviceFamily_CC13X0)
+// __builtin_clz is an GCC specific extension not implemented by the
+// compiler used by the CC13x0 compiler.
+__attribute__((weak)) int __builtin_clz(uint32_t x)
+{
+   int r = 0;
+
+   if(x > 0) {
+      while(x >>= 1) {
+         r++;
+      }
+   }
+   return r;
+}
+#endif
+
 /* Number of consecutive 1 bits in a byte from MSB to LSB */
 static uint8_t bitcount[256] =
         {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,  /* 0-15 */
@@ -176,12 +192,11 @@ doblack:
       iLen = 0;
       } /* while */
 
-   x += iLen;
    if (pDest >= pLimit) return G5_MAX_FLIPS_EXCEEDED;
-   *pDest++ = x;
-   *pDest++ = x; // Store a few more XSIZE to end the line
-   *pDest++ = x; // so that the compressor doesn't go past
-   *pDest++ = x; // the end of the line
+   *pDest++ = xsize;
+   *pDest++ = xsize; // Store a few more XSIZE to end the line
+   *pDest++ = xsize; // so that the compressor doesn't go past
+   *pDest++ = xsize; // the end of the line
    return G5_SUCCESS;
 } /* G5ENCEncodeLine() */
 //
