@@ -1429,16 +1429,40 @@ const uint8_t epd73_spectra_init[] PROGMEM = {
     0
 };
 
-const uint8_t epd75r_init[] PROGMEM = {
+const uint8_t 
+epd75r_init[] PROGMEM = {
+#if 1
     5, 0x01, 0x07,0x07,0x3f,0x3f, // power setting
+#else
+   5, 0x01, 0x17,0x07,0x3f,0x3f, // power setting
+#endif
     1, 0x04, // power on
     BUSY_WAIT,
     2, 0x00, 0x0f, // panel setting
+
     5, 0x61, 0x03,0x20,0x01,0xe0, // resolution 800x480
     2, 0x15, 0x00,
-    3, 0x50, 0x11, 0x07, // VCOM
+#if 1
+   3, 0x50, 
+// BDZ x BDV[1] BDV[0] N2OCP x DDX[1] DDX[0]
+   0x11, // BDZ: 0 BDV: 01 
+   0x07, // VCOM
+#else
+   3, 0x50, 
+// BDZ x BDV[1],BDV[0] N2OCP x DDX[1],DDX[0]
+// value of 0x01 = text white, background = black
+// value of 0x11 = text black, background = white
+// value of 0x21 = no back text, background = yellow, red text = black
+// value of 0x31 = no text background = yellow
+   0x21, // BDZ: 0 BDV: 10 
+   0x07, // VCOM
+#endif
     2, 0x60, 0x22, // TCON
+#if 1
     5, 0x65, 0x00, 0x00, 0x00, 0x00, // start row/col
+#else
+   5, 0x65, 0x00, 0x00, 0x02, 0x00, // start row/col
+#endif
     0
 };
 
@@ -1520,7 +1544,7 @@ uint8_t u8Cache[512];
 //
 const EPD_PANEL panelDefs[] PROGMEM = {
 #ifdef EP_PANEL_UNDEFINED
-    {0}, // undefined panel
+    {0,0,0,NULL,NULL,NULL,0,0,NULL}, // undefined panel
 #endif
 #ifdef EP42_400x300
     {400, 300, 0, epd42_init_sequence_full, NULL, epd42_init_sequence_part, 0, BBEP_CHIP_UC81xx, u8Colors_2clr}, // EP42_400x300
@@ -1637,6 +1661,10 @@ const EPD_PANEL panelDefs[] PROGMEM = {
 #ifdef EP_CHROMA29_CC1310
     {128, 296, 1, chroma29_cc1310_init_sequence_full, NULL, NULL, BBEP_3COLOR, BBEP_CHIP_SSD16xx, u8Colors_3clr}, // 
 #endif
+#ifdef EP_CHROMA74
+// based on EP75R_800x480
+    {800, 480, 0, epd75r_init, NULL, NULL, BBEP_3COLOR | BBEP_RED_SWAPPED, BBEP_CHIP_UC81xx, u8Colors_3clr}, // EP75R_800x480, waveshare 7.5 800x480 B/W/R
+#endif
 };
 //
 // Set the e-paper panel type
@@ -1724,6 +1752,18 @@ void bbepWaitBusy(BBEPDISP *pBBEP)
         if (digitalRead(pBBEP->iBUSYPin) == busy_idle) break;
         delay(1);
     }
+} /* bbepWaitBusy() */
+//
+// Return if panel is busy
+//
+bool bbepIsBusy(BBEPDISP *pBBEP)
+{
+    if (!pBBEP) return false;
+    if (pBBEP->iBUSYPin == 0xff) return false;
+    delay(10); // give time for the busy status to be valid
+    uint8_t busy_idle =  (pBBEP->chip_type == BBEP_CHIP_UC81xx) ? HIGH : LOW;
+    delay(1); // some panels need a short delay before testing the BUSY line
+    return (digitalRead(pBBEP->iBUSYPin) != busy_idle);
 } /* bbepWaitBusy() */
 //
 // Toggle the reset line to wake up the eink from deep sleep
@@ -1822,6 +1862,11 @@ void bbepSleep(BBEPDISP *pBBEP, int bDeep)
     if (pBBEP->chip_type == BBEP_CHIP_UC81xx) {
         if (pBBEP->iFlags & BBEP_7COLOR) {
             bbepCMD2(pBBEP, UC8151_POFF, 0x00); // power off
+            if (pBBEP->iFlags & BBEP_SPLIT_BUFFER) { // dual cable EPD
+               pBBEP->iCSPin = pBBEP->iCS2Pin;
+               bbepCMD2(pBBEP, UC8151_POFF, 0x00); // second controller
+               pBBEP->iCSPin = pBBEP->iCS1Pin;
+            }
         } else {
             bbepCMD2(pBBEP, UC8151_CDI, 0x17); // border floating
             bbepWriteCmd(pBBEP, UC8151_POFF); // power off
@@ -2365,7 +2410,6 @@ void bbepWriteImage2bpp(BBEPDISP *pBBEP, uint8_t ucCMD)
 int tx, ty;
 uint8_t *s, *d, uc, uc1, ucMask;
 uint8_t *pBuffer;
-int pix;
 
     pBuffer = pBBEP->ucScreen;
     if (ucCMD) {
@@ -2380,7 +2424,7 @@ int pix;
                 uc = 0;
                 ucMask = 0x03;
                 uc1 = s[tx>>2];
-                for (pix=0; pix<8; pix +=2) { // reverse the direction of the 4 pixels
+                for (int pix=0; pix<8; pix +=2) { // reverse the direction of the 4 pixels
                     uc <<= 2; // shift down 1 pixel
                     uc |= ((uc1 & ucMask) >> pix);
                     ucMask <<= 2;

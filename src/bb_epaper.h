@@ -235,7 +235,7 @@ const char *gBB_TypeStrings[] = {
 #endif
 
 #ifdef FUTURE
-    EPD42_4GRAY_400x300 // WFT0420CZ15
+    EPD42_4GRAY_400x300, // WFT0420CZ15
   EPD42Y_400x300, // DEPG0420YN
   EPD29_128x296,
   EPD29B_128x296,
@@ -559,6 +559,7 @@ class BBEPAPER
     void stretchAndSmooth(uint8_t *pSrc, uint8_t *pDest, int w, int h, int iSmoothType);
     void sleep(int bDeep);
     void wait(bool bQuick = false);
+    bool isBusy(void);
     void drawString(const char *pText, int x, int y);
     void setPlane(int iPlane);
     int getPlane(void);
