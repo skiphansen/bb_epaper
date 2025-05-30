@@ -2043,7 +2043,7 @@ void bbepFill(BBEPDISP *pBBEP, unsigned char ucColor, int iPlane)
             ucCMD2 = SSD1608_WRITE_ALTRAM;
         }
         // Write one or both memory planes to the EPD
-        if (iPlane == PLANE_0 || iPlane == PLANE_DUPLICATE) { // write to first plane
+        if (iPlane == PLANE_0 || iPlane == PLANE_DUPLICATE || iPlane == PLANE_BOTH) { // write to first plane
             bbepSetAddrWindow(pBBEP, 0,0, pBBEP->native_width, pBBEP->native_height);
             bbepWriteCmd(pBBEP, ucCMD1);
             for (y=0; y<pBBEP->native_height; y++) {
@@ -2051,7 +2051,7 @@ void bbepFill(BBEPDISP *pBBEP, unsigned char ucColor, int iPlane)
                 bbepWriteData(pBBEP, u8Cache, iPitch);
             } // for y
         }
-        if (iPlane == PLANE_1 || iPlane == PLANE_DUPLICATE) { // write to first plane
+        if (iPlane == PLANE_1 || iPlane == PLANE_DUPLICATE || iPlane == PLANE_BOTH) { // write to first plane
             bbepSetAddrWindow(pBBEP, 0,0, pBBEP->native_width, pBBEP->native_height);
             bbepWriteCmd(pBBEP, ucCMD2);
             for (y=0; y<pBBEP->native_height; y++) {
