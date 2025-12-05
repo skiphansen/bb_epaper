@@ -2446,7 +2446,7 @@ uint8_t *pBuffer;
                 s = &pBuffer[(tx>>2) + (ty * (pBBEP->width/4))];
                 uc = 0;
                 ucMask = 0xc0 >> ((tx & 3) * 2);
-                for (int pix=0; pix<4; pix++) {
+                for (pix=0; pix<4; pix++) {
                     uc <<= 2; // shift down 1 pixel
                     uc |= ((s[0] & ucMask) >> ((3-(tx&3))*2)); // inverted plane 0
                     s -= (pBBEP->width/4);
@@ -2462,7 +2462,7 @@ uint8_t *pBuffer;
                 s = &pBuffer[(tx>>2) + (ty * pBBEP->width/4)];
                 ucMask = 0xc0 >> ((tx & 3) * 2);
                 uc = 0;
-                for (int pix=0; pix<4; pix++) {
+                for (pix=0; pix<4; pix++) {
                     uc >>= 2;
                     uc |= ((s[0] & ucMask) << ((tx&3)*2)); // inverted plane 0
                     s -= (pBBEP->width/4);

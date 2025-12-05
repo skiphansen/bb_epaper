@@ -185,7 +185,7 @@ const uint8_t ucSmallFont[] PROGMEM = {
 //
 void bbepDrawSprite(BBEPDISP *pBBEP, const uint8_t *pSprite, int cx, int cy, int iPitch, int x, int y, uint8_t iColor)
 {
-    int tx, ty, dx, dy, iStartX;
+    int tx, ty, dx, dy, iStartX, j;
     uint8_t *s, pix, ucSrcMask;
     
     if (pBBEP == NULL) return;
@@ -232,13 +232,13 @@ void bbepDrawSprite(BBEPDISP *pBBEP, const uint8_t *pSprite, int cx, int cy, int
         bbepSetAddrWindow(pBBEP, x, y, cx, cy);
         iDestPitch = (cx+7)/8;
         bbepWriteCmd(pBBEP, u8CMD); // memory write command
-        for (int ty=dy; ty<dy+cy; ty++) {
+        for (ty=dy; ty<dy+cy; ty++) {
             memcpy(u8Cache, s, iPitch);
             s += iPitch;
             if (x & 7) { // need to shift it over by 1-7 bits
                 uint8_t *s = u8Cache, uc1, uc0 = 0; // last shifted byte
                 uint8_t n = x & 7; // shift amount
-                for (int j=0; j<cx+7; j+= 8) {
+                for (j=0; j<cx+7; j+= 8) {
                     uc1 = *s;
                     uc0 |= (uc1 >> n);
                     *s++ = uc0;
@@ -507,7 +507,7 @@ void InvertBytes(uint8_t *pData, uint8_t bLen)
 //
 int bbepLoadG5(BBEPDISP *pBBEP, const uint8_t *pG5, int x, int y, int iFG, int iBG, float fScale)
 {
-    uint16_t rc, tx, ty, cx, cy, dx, dy, size;
+    uint16_t rc, tx, ty, cx, cy, dx, dy, size, j;
     int width, height;
     BB_BITMAP *pbbb;
     uint32_t u32Frac, u32XAcc, u32YAcc; // integer fraction vars
@@ -556,7 +556,7 @@ int bbepLoadG5(BBEPDISP *pBBEP, const uint8_t *pG5, int x, int y, int iFG, int i
                     uc0 = 0xff << (7-(x & 7));
                 }
                 uint8_t n = x & 7; // shift amount
-                for (int j=0; j<cx+7; j+= 8) {
+                for (j=0; j<cx+7; j+= 8) {
                     uc1 = *s++;
                     uc0 |= (uc1 >> n);
                     *d++ = uc0;
@@ -608,7 +608,7 @@ int bbepLoadG5(BBEPDISP *pBBEP, const uint8_t *pG5, int x, int y, int iFG, int i
 //
 int bbepLoadBMP(BBEPDISP *pBBEP, const uint8_t *pBMP, int dx, int dy, int iFG, int iBG)
 {
-    int16_t i16, cx, cy;
+    int16_t i16, cx, cy, j;
     int iOffBits; // offset to bitmap data
     int x, y, iPitch;
     uint8_t b=0, *s;
@@ -673,7 +673,7 @@ int bbepLoadBMP(BBEPDISP *pBBEP, const uint8_t *pBMP, int dx, int dy, int iFG, i
             if (dx & 7) { // need to shift it over by 1-7 bits
                 uint8_t *d = u8Cache, uc1, uc0 = 0; // last shifted byte
                 uint8_t n = dx & 7; // shift amount
-                for (int j=0; j<cx+7; j+= 8) {
+                for (j=0; j<cx+7; j+= 8) {
                     uc1 = pgm_read_byte(s++);
                     uc0 |= (uc1 >> n);
                     *d++ = uc0;
@@ -1231,7 +1231,7 @@ int tx, ty, iPitch, iDestPitch;
 //
 int bbepWriteString(BBEPDISP *pBBEP, int x, int y, char *szMsg, int iSize, int iColor, int iBG)
 {
-    int i, iFontOff, iLen;
+    int i, iFontOff, iLen, ty, tx;
     uint8_t c, *s, ucCMD, ucCMD1, ucCMD2;
     uint8_t u8Temp[40];
     
@@ -1301,11 +1301,11 @@ int bbepWriteString(BBEPDISP *pBBEP, int x, int y, char *szMsg, int iSize, int i
                 } else { // stretch the pixels 2x
                     uint8_t u8SrcMask, u8DstMask, u8_0, u8_1;
                     uint8_t *d = u8Cache;
-                    for (int ty=0; ty<8; ty++) {
+                    for (ty=0; ty<8; ty++) {
                         u8_0 = u8_1 = 0;
                         u8SrcMask = 0x80;
                         u8DstMask = 0xc0;
-                        for (int tx=0; tx<4; tx++) {
+                        for (tx=0; tx<4; tx++) {
                             if (u8Temp[ty] & u8SrcMask) {
                                 u8_0 |= u8DstMask;
                             }
@@ -1325,9 +1325,9 @@ int bbepWriteString(BBEPDISP *pBBEP, int x, int y, char *szMsg, int iSize, int i
 #ifndef NO_RAM
                 uint8_t *s, u8Mask;
                 if (iCount == 8) {
-                    for (int ty=0; ty<8; ty++) {
+                    for (ty=0; ty<8; ty++) {
                         u8Mask = 1<<ty;
-                        for (int tx = 0; tx<iLen; tx++) {
+                        for (tx = 0; tx<iLen; tx++) {
                             if (u8Temp[tx] & u8Mask) {
                                 if (iColor != BBEP_TRANSPARENT) {
                                     (*pBBEP->pfnSetPixelFast)(pBBEP, x+tx, y+ty, iColor);
@@ -1339,10 +1339,10 @@ int bbepWriteString(BBEPDISP *pBBEP, int x, int y, char *szMsg, int iSize, int i
                     }
                 } else { // 16x16
                     bbepStretchAndSmooth(u8Temp, u8Cache, 8, 8, 1); // smooth too
-                    for (int ty=0; ty<16; ty++) {
+                    for (ty=0; ty<16; ty++) {
                         s = &u8Cache[2*ty];
                         u8Mask = 0x80;
-                        for (int tx = 7; tx>=0; tx--) {
+                        for (tx = 7; tx>=0; tx--) {
                             if (s[0] & u8Mask) {
                                 if (iColor != BBEP_TRANSPARENT) {
                                     (*pBBEP->pfnSetPixelFast)(pBBEP, x+ty, y+tx+8, iColor);
@@ -1501,9 +1501,9 @@ int bbepWriteString(BBEPDISP *pBBEP, int x, int y, char *szMsg, int iSize, int i
             } else { // write to RAM
 #ifndef NO_RAM
                 uint8_t u8Mask;
-                for (int ty=0; ty<8; ty++) {
+                for (ty=0; ty<8; ty++) {
                     u8Mask = 1<<ty;
-                    for (int tx = 0; tx<iLen; tx++) {
+                    for (tx = 0; tx<iLen; tx++) {
                         if (u8Temp[6+tx] & u8Mask) {
                             if (iColor != BBEP_TRANSPARENT) {
                                 (*pBBEP->pfnSetPixelFast)(pBBEP, x+tx, y+ty, iColor);
@@ -1552,9 +1552,9 @@ int bbepWriteString(BBEPDISP *pBBEP, int x, int y, char *szMsg, int iSize, int i
             } else { // write to RAM
 #ifndef NO_RAM
                 uint8_t u8Mask;
-                for (int ty=0; ty<8; ty++) {
+                for (ty=0; ty<8; ty++) {
                     u8Mask = 1<<ty;
-                    for (int tx = 0; tx<iLen; tx++) {
+                    for (tx = 0; tx<iLen; tx++) {
                         if (u8Temp[tx] & u8Mask) {
                             if (iColor != BBEP_TRANSPARENT) {
                                 (*pBBEP->pfnSetPixelFast)(pBBEP, x+tx, ty+y, iColor);

@@ -197,4 +197,22 @@ class G5DECODER
 };
 #endif // __cplusplus
 
+#ifdef _PROVIDE_CLZ
+
+int __builtin_clz( uint32_t x)
+{
+   if(x == 0) {
+      return 32;
+   }
+   else {
+      int r = 0;
+      while((x & 1) == 0) {
+         r++;
+         x >>= 1;
+      }
+      return r;
+   }
+}
+#endif   // _PROVIDE_CLZ
+
 #endif // __GROUP5__
