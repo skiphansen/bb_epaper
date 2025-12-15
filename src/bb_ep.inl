@@ -2408,7 +2408,7 @@ void bbepWriteImage4bpp(BBEPDISP *pBBEP, uint8_t ucCMD)
 void bbepWriteImage2bpp(BBEPDISP *pBBEP, uint8_t ucCMD)
 {
 int tx, ty;
-uint8_t *s, *d, uc, uc1, ucMask;
+uint8_t *s, *d, uc, uc1, ucMask, pix;
 uint8_t *pBuffer;
 
     pBuffer = pBBEP->ucScreen;
@@ -2424,7 +2424,7 @@ uint8_t *pBuffer;
                 uc = 0;
                 ucMask = 0x03;
                 uc1 = s[tx>>2];
-                for (int pix=0; pix<8; pix +=2) { // reverse the direction of the 4 pixels
+                for (pix=0; pix<8; pix +=2) { // reverse the direction of the 4 pixels
                     uc <<= 2; // shift down 1 pixel
                     uc |= ((uc1 & ucMask) >> pix);
                     ucMask <<= 2;
